@@ -1,0 +1,83 @@
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific folders
+.vscode/
+.vs/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+[Bb]uild/
+[Bb]in/
+[Oo]bj/
+
+# C++ specific
+*.obj
+*.exe
+*.dll
+*.lib
+*.ilk
+*.pdb
+*.idb
+*.exp
+*.tlb
+*.tlh
+*.tmp
+*.log
+*.vspscc
+*.vssscc
+
+# Visual Studio generated files
+*.dbmdl
+*.dbproj.schemaview
+*.jfm
+*.lastcodeanalysissucceeded
+*.opensdf
+*.sdf
+*.cachefile
+*.pfx
+*.publish.xml
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+*.cmake
+Makefile
+
+# NUnit
+*.VisualState.xml
+TestResult.xml
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# Azure Pipelines
+.env
+.env.*
+
+# Others
+*.log
+*.tlog
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+*.vcxproj.filters
+*.vcxproj
