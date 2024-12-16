@@ -43,10 +43,10 @@ void loadReservationsFromFile(const string& filename = "reservations.txt") {
         inFile.ignore(); // Ignore the value 
         getline(inFile, email); //infile read data
         getline(inFile, name);
-        inFile >> age; 
+        inFile >> age;
         inFile.ignore(); // Ignore the value
         inFile >> seatNumber;
-        inFile.ignore(); // Ignore the newline or any delimiter
+        inFile.ignore(); // Ignore the newline 
 
         Reservation res{ id, email, name, age, seatNumber };
         reservations[id] = res;
@@ -61,7 +61,7 @@ void loadReservationsFromFile(const string& filename = "reservations.txt") {
 
 // Save reservations to a file
 void saveReservationsToFile(const string& filename = "reservations.txt") {
-  //ofstream Creates and writes to files 
+    //ofstream Creates and writes to files 
     ofstream outFile(filename); // outFile is used to write data to a file.
     for (const auto& pair : reservations) {
         const Reservation& res = pair.second;
@@ -77,6 +77,7 @@ void saveReservationsToFile(const string& filename = "reservations.txt") {
 
 // Book reservation (admin function)
 void bookReservation() {
+    //the parent try block provides overall exception handling for the entire function,
     try {
         int age = 0;
 
@@ -95,6 +96,7 @@ void bookReservation() {
         }
 
         do {
+            //child try block provides localized handling for specific errors
             try {
                 // Input and validate reservation details
                 cout << "Enter reservation ID: ";
@@ -163,8 +165,8 @@ void bookReservation() {
                 cout << "Error: " << a.what() << "\n";
                 cin.clear();  // Clear the input state
                 //This represents the maximum number of characters
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
-                return;     
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                return;
             }
 
             // Ask user if they want to add another reservation
@@ -177,10 +179,11 @@ void bookReservation() {
 
     }
     //& is refetence of e (e handel all exception)
-    catch (const exception & e) {
+    catch (const exception& e) {
         cout << "error: " << e.what() << "\n";
     }
 }
+
 
 
 // Update reservation (admin function)
@@ -191,8 +194,8 @@ void updateReservation() {
     //it means iterator
     auto it = reservations.find(id);
     if (it != reservations.end()) {
-       //it-sev=cond(store elemnt in pair first and second)
-        Reservation& res = it->second; 
+        //it-sev=cond(store elemnt in pair first and second)
+        Reservation& res = it->second;
 
         // Ask user for updated details
         cout << "Current passenger name: " << res.passengerName << "\n";
