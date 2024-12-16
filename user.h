@@ -12,7 +12,7 @@ const string ADMIN_PASSWORD = "anees123";
 const string CUSTOMER_FILE = "customers.txt";
 
 // Login function for the user
-bool login(string& role, string& email) {
+bool login(string& rol, string& email) {
     string password;
 
     while (true) {
@@ -27,7 +27,7 @@ bool login(string& role, string& email) {
 
         // Check if the user is an admin
         if (email == ADMIN_EMAIL && password == ADMIN_PASSWORD) {
-            role = "admin";
+            rol = "admin";
             cout << "Admin logged in successfully.\n";
             return true;
         }
@@ -47,12 +47,12 @@ bool login(string& role, string& email) {
             while (file >> storedEmail) {
                 // Check if the entered email matches a customer email and the password is correct
                 if (email == storedEmail && password == "password123") {  // Default password for customers
-                    role = "customer";
+                    rol = "customer";
                     bin = true;
                     break;
                 }
             }
-
+            //bin is variable to pas by arrgument
             if (bin) {
                 cout << "Customer logged in successfully.\n";
                 file.close();

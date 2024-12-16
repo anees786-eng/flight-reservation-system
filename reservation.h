@@ -1,6 +1,6 @@
 #ifndef RESERVATION_H
 #define RESERVATION_H
-
+#include<stdexcept>
 #include <map>
 #include <string>
 #include <iostream>
@@ -29,6 +29,7 @@ int nextReservationID = 1;
 
 // Load reservations from file
 void loadReservationsFromFile(const string& filename = "reservations.txt") {
+    //ifstream 	Reads from files
     ifstream inFile(filename);
     if (!inFile) {
         cerr << "File not found: " << filename << "\n";
@@ -39,11 +40,11 @@ void loadReservationsFromFile(const string& filename = "reservations.txt") {
     string email, name;
 
     while (inFile >> id) {
-        inFile.ignore(); // Ignore the delimiter '|'
-        getline(inFile, email);
+        inFile.ignore(); // Ignore the value 
+        getline(inFile, email); //infile read data
         getline(inFile, name);
-        inFile >> age;
-        inFile.ignore(); // Ignore the delimiter '|'
+        inFile >> age; 
+        inFile.ignore(); // Ignore the value
         inFile >> seatNumber;
         inFile.ignore(); // Ignore the newline or any delimiter
 
@@ -60,100 +61,138 @@ void loadReservationsFromFile(const string& filename = "reservations.txt") {
 
 // Save reservations to a file
 void saveReservationsToFile(const string& filename = "reservations.txt") {
-    ofstream outFile(filename);
+  //ofstream Creates and writes to files 
+    ofstream outFile(filename); // outFile is used to write data to a file.
     for (const auto& pair : reservations) {
         const Reservation& res = pair.second;
         outFile
-     << res.reservationID << "\n" 
-    << res.email << "\n"
-   << res.passengerName << "\n"
-    << res.age << "\n"
-   << res.seatNumber << "\n";
+            << res.reservationID << "\n"
+            << res.email << "\n"
+            << res.passengerName << "\n"
+            << res.age << "\n"
+            << res.seatNumber << "\n";
     }
     outFile.close();
 }
 
 // Book reservation (admin function)
-
 void bookReservation() {
+    try {
+        int age = 0;
 
-    char choice;
+        char choice;
+        Reservation res;
 
-    Reservation res;
+        cout << "Enter email: ";
+        cin >> res.email;
 
-    cout << "Enter email: ";
-    cin >> res.email;
+        // Check if the customer email is already stored
+        if (customer.find(res.email) == customer.end()) {
+            customer[res.email] = "password123"; // Assign default password for new customers
 
-    // Check if the customer email is already stored
-    if (customer.find(res.email) == customer.end()) {
-        customer[res.email] = "password123"; // Assign default password for new customers
-        cout << "Customer email saved with default password.\n";
-    }
-    do {
+            cout << "Customer email saved with default password.\n";
 
-        // Input and validate reservation details
-        cout << "Enter reservation ID: ";
-        cin >> res.reservationID;
-
-        // Check if the reservation ID already exists
-        if (reservations.find(res.reservationID) != reservations.end()) {
-            cout << "Error: Reservation with this ID already exists. Try again.\n";
-           return ; // Restart the current iteration
         }
 
-        cout << "Enter passenger name: ";
-        cin.ignore(); // Clear input buffer
-        getline(cin, res.passengerName);
+        do {
+            try {
+                // Input and validate reservation details
+                cout << "Enter reservation ID: ";
+                if (!(cin >> res.reservationID)) {
+                    throw invalid_argument("Invalid input for reservation ID.");
+                    return;
+                }
 
-        cout << "Enter age: ";
-        cin >> res.age;
+                // Check if the reservation ID already exists
+                if (reservations.find(res.reservationID) != reservations.end()) {
+                    throw runtime_error("Error: Reservation with this ID already exists.");
+                }
 
-        cout << "Enter seat number: ";
-        cin >> res.seatNumber;
+                cout << "Enter passenger name: ";
+                cin.ignore(); // Clear input buffer
+                getline(cin, res.passengerName);
 
-        // Check if email is stored in customers.txt
-        ifstream customerFile(CUSTOMER_FILE);
-        bool emailExists = false;
-        string storedEmail;
-        while (customerFile >> storedEmail) {
-            if (storedEmail == res.email) {
-                emailExists = true;
-                break;
+                if (res.passengerName.empty()) {
+                    throw invalid_argument("Passenger name cannot be empty.");
+                }
+                //|| or opertaor(give value yes or no)
+                cout << "Enter age: ";
+                if (!(cin >> res.age) || res.age <= 0) {
+                    throw invalid_argument("Invalid input for age. Must be a  number.");
+                }
+
+                cout << "Enter seat number: ";
+                if (!(cin >> res.seatNumber) || res.seatNumber <= 0) {
+                    throw invalid_argument("Invalid input for seat number. Must be a  number.");
+                }
+
+                // Check if email is stored in customers.txt
+                ifstream customerFile(CUSTOMER_FILE);
+                if (!customerFile) {
+                    throw runtime_error("Error opening customers.txt file.");
+                }
+
+                bool emailExists = false;
+                string storedEmail;
+                while (customerFile >> storedEmail) {
+                    if (storedEmail == res.email) {
+                        emailExists = true;
+                        break;
+                    }
+                }
+                customerFile.close();
+
+                if (!emailExists) {
+                    ofstream customerFileOut(CUSTOMER_FILE, ios::app);
+                    if (!customerFileOut) {
+                        throw runtime_error("Error writing to customers.txt file.");
+                    }
+                    customerFileOut << res.email << endl; // Save the email in customers.txt
+                    customerFileOut.close();
+                }
+
+                // Save the reservation
+                reservations[res.reservationID] = res;
+                cout << "Reservation booked successfully! ID: " << res.reservationID << "\n";
+
+                // Save all reservations to file
+                saveReservationsToFile();
             }
-        }
-        customerFile.close();
+            catch (const exception& a) {
+                //what means (display value for user enter)
+                cout << "Error: " << a.what() << "\n";
+                cin.clear();  // Clear the input state
+                //This represents the maximum number of characters
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                return;     
+            }
 
-        if (!emailExists) {
-            ofstream customerFileOut(CUSTOMER_FILE, ios::app);
-            customerFileOut << res.email << endl; // Save the email in customers.txt
-            customerFileOut.close();
-        }
+            // Ask user if they want to add another reservation
+            cout << "Do you want to add another reservation? (y/n): ";
+            cin >> choice;
 
-        // Save the reservation
-        reservations[res.reservationID] = res;
-        cout << "Reservation booked successfully! ID: " << res.reservationID << "\n";
+        } while (choice == 'y' || choice == 'Y');
 
-        // Save all reservations to file
-        saveReservationsToFile();
+        cout << "Returning to the main menu...\n";
 
-        // Ask user if they want to add another reservation
-        cout << "Do you want to add another reservation? (y/n): ";
-        cin >> choice;
-
-    } while (choice == 'y' || choice == 'Y');
-
-    cout << "Returning to the main menu...\n";
+    }
+    //& is refetence of e (e handel all exception)
+    catch (const exception & e) {
+        cout << "error: " << e.what() << "\n";
+    }
 }
+
 
 // Update reservation (admin function)
 void updateReservation() {
     int id;
     cout << "Enter reservation ID to update: ";
     cin >> id;
-
+    //it means iterator
     auto it = reservations.find(id);
     if (it != reservations.end()) {
-        Reservation& res = it->second;
+       //it-sev=cond(store elemnt in pair first and second)
+        Reservation& res = it->second; 
 
         // Ask user for updated details
         cout << "Current passenger name: " << res.passengerName << "\n";

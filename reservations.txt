@@ -1,15 +1,10 @@
 1
-ans1@gmail.com
+anees1@gmail.com
 ans
 12
 12
 2
-ans2@gmail.com
-ans
-12
-12
-4
-ans@gmail.com
+ans1@gmail.com
 ans
 12
 12

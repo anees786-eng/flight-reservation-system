@@ -43,7 +43,6 @@ int main() {
         else if (log == "customer") {
             switch (choice) {
             case 1: searchReservation(email); break;
-
             case 2: cout << "Exiting...\n"; break;
             default: cout << "Invalid choice. Try again.\n"; break;
             }
