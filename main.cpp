@@ -6,7 +6,7 @@
 using namespace std;
 
 int main() {
-    loadReservationsFromFile();
+   /* loadReservationsFromFile();*/
 
     string log, email;
     if (!login(log, email)) {

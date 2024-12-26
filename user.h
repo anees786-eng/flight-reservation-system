@@ -52,7 +52,7 @@ bool login(string& rol, string& email) {
                     break;
                 }
             }
-            //bin is variable to pas by arrgument
+            // The login success (bin) is checked.
             if (bin) {
                 cout << "Customer logged in successfully.\n";
                 file.close();
