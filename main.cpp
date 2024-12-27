@@ -6,8 +6,7 @@
 using namespace std;
 
 int main() {
-   /* loadReservationsFromFile();*/
-
+    
     string log, email;
     if (!login(log, email)) {
         cout << "Login failed. Exiting...\n";
@@ -49,7 +48,7 @@ int main() {
         }
     } while ((log == "admin" && choice != 6) || (log == "customer" && choice != 2));
 
-    saveReservationsToFile();  // Save data before exiting
+    //saveReservationsToFile();  // Save data before exiting
     return 0;
 }
 

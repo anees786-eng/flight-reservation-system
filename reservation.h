@@ -28,38 +28,7 @@ map<int, Reservation> reservations;
 map<string, string> customer; //This is the name of the map, which will store pairs of key-value strings.
 int nextReservationID = 1;
 
-// Load reservations from file
-void loadReservationsFromFile(const string& filename = "reservations.txt") {
-    //ifstream 	Reads from files
-    ifstream inFile(filename);
-    //The condition checks whether the file stream object inFile is in a failed state.
-    if (!inFile) {
-        cout << "File not found: " << filename << "\n";
-        return;
-    }
 
-    int id, age, seatNumber;
-    string email, name;
-    //Reads an integer id from the file.
-    while (inFile >> id) {
-        inFile.ignore(); // Ignore the value 
-        getline(inFile, email); //infile read data(getline function use to read full line)
-        getline(inFile, name);
-        inFile >> age;
-        inFile.ignore(); // Ignore the value
-        inFile >> seatNumber;
-        inFile.ignore(); // Ignore the newline 
-
-        Reservation res{ id, email, name, age, seatNumber };
-        reservations[id] = res;
-
-        if (id >= nextReservationID) {
-            nextReservationID = id + 1;
-        }
-    }
-
-    inFile.close();
-}
 
 // Save reservations to a file
 void saveReservationsToFile(const string& filename = "reservations.txt") {
@@ -84,6 +53,7 @@ void saveReservationsToFile(const string& filename = "reservations.txt") {
 void bookReservation(const string& filename = "reservations.txt") {
     ifstream inFile(filename);
     int ID = 0;
+  
     if (inFile) {
         int id, age, seatNumber;
         string email, passengerName;
@@ -95,17 +65,17 @@ void bookReservation(const string& filename = "reservations.txt") {
             inFile.ignore(); // Ignore the value
             inFile >> seatNumber;
             inFile.ignore(); // Ignore the newline 
-            ID = id; // read last id
+            ID = id; //get last id
             Reservation res{ id, email, passengerName, age, seatNumber };
             reservations[id] = res;
 
             if (id >= nextReservationID) {
-                nextReservationID = id + 1;
+                nextReservationID++;
+
             }
         }
 
     }
-
 
     // Increment for new reservation
     int nextReservationID = ID + 1;
@@ -137,12 +107,10 @@ void bookReservation(const string& filename = "reservations.txt") {
             if (!(cin >> res.age) || res.age <= 0) {
                 throw invalid_argument("Invalid input for age. Must be a  number.");
             }
-
             cout << "Enter seat number: ";
             if (!(cin >> res.seatNumber) || res.seatNumber <= 0) {
                 throw invalid_argument("Invalid input for seat number. Must be a  number.");
             }
-
             // Check if email is stored in customers.txt
             ifstream customerFile(CUSTOMER_FILE);
             if (!customerFile) {
@@ -194,8 +162,6 @@ void bookReservation(const string& filename = "reservations.txt") {
     }
 
 }
-
-
 // Update reservation (admin function)
 void updateReservation() {
     int id;
@@ -203,19 +169,13 @@ void updateReservation() {
     cout << "Enter reservation ID to update: ";
     cin >> id;
     //it means iterator
-
-
     auto it = reservations.find(id);
-
     if (it != reservations.end())
     {
         //it-second(store elemnt in pair first and second)
-
         Reservation& res = it->second;
-
         // Ask user for updated details
         cout << "Current passenger name: " << res.passengerName << "\n";
-
         cout << "Enter new passenger name: ";
         cin.ignore(); // Clear input buffer
         string newName;
@@ -223,7 +183,6 @@ void updateReservation() {
         if (!newName.empty()) {
             res.passengerName = newName;
         }
-
         cout << "Current age: " << res.age << "\n";
         cout << "Enter new age: ";
         int newAge;
@@ -231,7 +190,6 @@ void updateReservation() {
         if (newAge != 0) {
             res.age = newAge;
         }
-
         cout << "Current seat number: " << res.seatNumber << "\n";
         cout << "Enter new seat number: ";
         int newSeatNumber;
@@ -239,10 +197,8 @@ void updateReservation() {
         if (newSeatNumber != 0) {
             res.seatNumber = newSeatNumber;
         }
-
         // Save all reservations to file
         saveReservationsToFile();
-
         cout << "Reservation updated successfully!\n";
     }
     else {
@@ -251,32 +207,93 @@ void updateReservation() {
 }
 
 // Cancel reservation (admin function)
-void cancelReservation() {
-    int id;
+void cancelReservation(const string& filename = "reservations.txt") {
+    // Load reservations from the file into the map
+    ifstream inFile(filename);
+    if (!inFile) {
+        cout << "Error: File not found.\n";
+        return;
+    }
+
+    int id, age, seatNumber;
+    string email, name;
+  while (inFile >> id) {
+        inFile.ignore(); // Ignore newline after ID
+        getline(inFile, email); // Read email
+        getline(inFile, name); // Read passenger name
+        inFile >> age;
+        inFile.ignore(); // Ignore newline after age
+        inFile >> seatNumber;
+        inFile.ignore(); // Ignore newline after seat number
+        }
+    inFile.close();
+
+    //  user for the reservation ID to cancel
     cout << "Enter reservation ID to cancel: ";
     cin >> id;
+
+    // Check if the reservation exists and remove it
     if (reservations.erase(id)) {
-        cout << "Reservation cancelled.\n";
+        cout << "Reservation cancelled successfully.\n";
+        // outFile is used to write data to a file.
+        ofstream outFile(filename);
+        for (const auto& pair : reservations) {
+            int resID = pair.first;
+            const Reservation& res = pair.second;
+            outFile << resID << "\n"
+                << res.email << "\n"
+                << res.passengerName << "\n"
+                << res.age << "\n"
+                << res.seatNumber << "\n";
+        }
+
+        outFile.close();
     }
     else {
         cout << "Reservation not found.\n";
     }
-    loadReservationsFromFile();
 }
+
 
 // Search reservation (customer/admin function)
 void searchReservation(const string& email) {
-    loadReservationsFromFile();
-    int id;
+    const string filename = "reservations.txt";
+    ifstream inFile(filename);
+
+    if (!inFile) {
+        cout << "Error: File not found.\n";
+        
+    }
+    int id, age, seatNumber;
+    string storedEmail, name;
+    Reservation res;
+    while(inFile >> id) {
+        inFile.ignore(); // Ignore newline after ID
+        getline(inFile, storedEmail); // Read email
+        getline(inFile, name);        // Read passenger name
+        inFile >> age;
+        inFile.ignore(); // Ignore newline after age
+        inFile >> seatNumber;
+        inFile.ignore(); // Ignore newline after seat number
+        
+        Reservation res{ id, storedEmail, name, age, seatNumber };
+        reservations[id] = res;
+
+    }
+
+    inFile.close();
+
+    //  user to enter reservation ID
     cout << "Enter reservation ID to search: ";
     cin >> id;
 
+    // Search for the reservation
     auto it = reservations.find(id);
-    //means the id was not found.
     if (it != reservations.end()) {
-        //Accesses the email field of the Reservation object.
+        // Check if the email matches or if the user is an admin
         if (it->second.email == email || email == "admin") {
-            it->second.display(); // Admin can search any, customer can only see theirs
+            cout << "Reservation Details:\n";
+            it->second.display(); // Display reservation details
         }
         else {
             cout << "Reservation ID found, but it does not belong to this email.\n";
@@ -285,17 +302,37 @@ void searchReservation(const string& email) {
     else {
         cout << "Reservation ID not found.\n";
     }
-
-
 }
 
-
-
 // Display all reservations (admin function)
-void displayAllReservations() {
+void displayAllReservations(const string& filename = "reservations.txt") {
+    //loadReservationsFromFile();
+    ifstream inFile(filename);
+    //The condition checks whether the file stream object inFile is in a failed state.
+    if (!inFile) {
+        cout << "File not found: " << filename << "\n";
+    }
+   
+
+    int id, age, seatNumber;
+    string email, name;
+    //Reads an integer id from the file.
+    while (inFile >> id) {
+        inFile.ignore(); // Ignore the value 
+        getline(inFile, email); //infile read data(getline function use to read full line)
+        getline(inFile, name);
+        inFile >> age;
+        inFile.ignore(); // Ignore the value
+        inFile >> seatNumber;
+        inFile.ignore(); // Ignore the newline 
+
+        Reservation res{ id, email, name, age, seatNumber };
+        reservations[id] = res;
+      }
+
     for (const auto& pair : reservations) {
         pair.second.display();
-        loadReservationsFromFile();
+
     }
 }
 
