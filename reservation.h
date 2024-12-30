@@ -14,7 +14,7 @@ struct Reservation {
     int age;
     int seatNumber;
     //Suitable for small to medium projects.
-    void display() const {
+    void display()const{
         cout << "Reservation ID: " << reservationID
             << ", Email: " << email
             << ", Passenger Name: " << passengerName
@@ -22,15 +22,15 @@ struct Reservation {
             << ", Seat Number: " << seatNumber << endl;
     }
 };
+
 //This is a map the key type is int, and the value type is Reservation
 map<int, Reservation> reservations;
 //This represents a mapping between two strings : 
 map<string, string> customer; //This is the name of the map, which will store pairs of key-value strings.
-int nextReservationID = 1;
-
-
-
+//int nextReservationID = 1;
 // Save reservations to a file
+
+
 void saveReservationsToFile(const string& filename = "reservations.txt") {
     //ofstream Creates and writes to files 
     ofstream outFile(filename); // outFile is used to write data to a file.
@@ -53,7 +53,7 @@ void saveReservationsToFile(const string& filename = "reservations.txt") {
 void bookReservation(const string& filename = "reservations.txt") {
     ifstream inFile(filename);
     int ID = 0;
-  
+    int nextReservationID = ID + 1;
     if (inFile) {
         int id, age, seatNumber;
         string email, passengerName;
@@ -78,7 +78,7 @@ void bookReservation(const string& filename = "reservations.txt") {
     }
 
     // Increment for new reservation
-    int nextReservationID = ID + 1;
+    //int nextReservationID = ID + 1;
     //Create a new reservation
     Reservation res;
     res.reservationID = nextReservationID++;
@@ -163,11 +163,37 @@ void bookReservation(const string& filename = "reservations.txt") {
 
 }
 // Update reservation (admin function)
-void updateReservation() {
-    int id;
+void updateReservation(const string& filename = "reservations.txt") {
+    //int id;
+  
+    //Reservation res;
+    //const string filename = "reservations.txt";
+    ifstream inFile(filename);
+    if (!inFile) {
+        cout << "Error: File not found.\n";
+    }
+    int id, age, seatNumber;
+    string storedEmail, name;
     Reservation res;
+    while (inFile >> id) {
+        inFile.ignore(); // Ignore newline after ID
+        getline(inFile, storedEmail); // Read email
+        getline(inFile, name);        // Read passenger name
+        inFile >> age;
+        inFile.ignore(); // Ignore newline after age
+        inFile >> seatNumber;
+        inFile.ignore(); // Ignore newline after seat number
+
+        Reservation res{ id, storedEmail, name, age, seatNumber };
+        reservations[id] = res;
+
+    }
+
+    inFile.close();
+    
     cout << "Enter reservation ID to update: ";
     cin >> id;
+    
     //it means iterator
     auto it = reservations.find(id);
     if (it != reservations.end())
@@ -208,39 +234,53 @@ void updateReservation() {
 
 // Cancel reservation (admin function)
 void cancelReservation(const string& filename = "reservations.txt") {
-    // Load reservations from the file into the map
+    // Step 1: Load reservations from the file into the map
     ifstream inFile(filename);
     if (!inFile) {
         cout << "Error: File not found.\n";
         return;
     }
 
+    reservations.clear(); // Clear any existing data in the map
+
     int id, age, seatNumber;
-    string email, name;
-  while (inFile >> id) {
+    string email, passengerName;
+
+    while (inFile >> id) {
         inFile.ignore(); // Ignore newline after ID
         getline(inFile, email); // Read email
-        getline(inFile, name); // Read passenger name
+        getline(inFile, passengerName); // Read passenger name
         inFile >> age;
         inFile.ignore(); // Ignore newline after age
         inFile >> seatNumber;
         inFile.ignore(); // Ignore newline after seat number
-        }
+
+        Reservation res{ id, email, passengerName, age, seatNumber };
+        reservations[id] = res; // Add to the map
+    }
+
     inFile.close();
 
-    //  user for the reservation ID to cancel
+    // Step 2: Prompt user for the reservation ID to cancel
     cout << "Enter reservation ID to cancel: ";
     cin >> id;
 
-    // Check if the reservation exists and remove it
-    if (reservations.erase(id)) {
+    // Step 3: Check if the reservation exists and remove it
+    auto it = reservations.find(id);
+    if (it != reservations.end()) {
+        reservations.erase(it); // Remove from the map
         cout << "Reservation cancelled successfully.\n";
-        // outFile is used to write data to a file.
+
+        // Step 4: Save updated reservations back to the file
         ofstream outFile(filename);
+        if (!outFile) {
+            cout << "Error: Unable to write to file.\n";
+            return;
+        }
+
         for (const auto& pair : reservations) {
-            int resID = pair.first;
             const Reservation& res = pair.second;
-            outFile << resID << "\n"
+            outFile << res.reservationID << "\n"
                 << res.email << "\n"
                 << res.passengerName << "\n"
                 << res.age << "\n"
@@ -259,11 +299,9 @@ void cancelReservation(const string& filename = "reservations.txt") {
 void searchReservation(const string& email) {
     const string filename = "reservations.txt";
     ifstream inFile(filename);
-
-    if (!inFile) {
+     if (!inFile) {
         cout << "Error: File not found.\n";
-        
-    }
+        }
     int id, age, seatNumber;
     string storedEmail, name;
     Reservation res;
@@ -312,11 +350,9 @@ void displayAllReservations(const string& filename = "reservations.txt") {
     if (!inFile) {
         cout << "File not found: " << filename << "\n";
     }
-   
-
-    int id, age, seatNumber;
+   int id, age, seatNumber;
     string email, name;
-    //Reads an integer id from the file.
+    
     while (inFile >> id) {
         inFile.ignore(); // Ignore the value 
         getline(inFile, email); //infile read data(getline function use to read full line)
