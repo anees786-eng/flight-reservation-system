@@ -14,13 +14,15 @@ struct Reservation {
     int age;
     int seatNumber;
     //Suitable for small to medium projects.
-    void display()const{
+    void display()const {
+
         cout << "Reservation ID: " << reservationID
             << ", Email: " << email
             << ", Passenger Name: " << passengerName
             << ", Age: " << age
             << ", Seat Number: " << seatNumber << endl;
     }
+    
 };
 
 //This is a map the key type is int, and the value type is Reservation
@@ -77,10 +79,7 @@ void bookReservation(const string& filename = "reservations.txt") {
 
     }
 
-    // Increment for new reservation
-    //int nextReservationID = ID + 1;
-    //Create a new reservation
-    Reservation res;
+   Reservation res;
     res.reservationID = nextReservationID++;
     int age = 0;
 
@@ -164,72 +163,86 @@ void bookReservation(const string& filename = "reservations.txt") {
 }
 // Update reservation (admin function)
 void updateReservation(const string& filename = "reservations.txt") {
-    //int id;
-  
-    //Reservation res;
-    //const string filename = "reservations.txt";
-    ifstream inFile(filename);
-    if (!inFile) {
-        cout << "Error: File not found.\n";
-    }
-    int id, age, seatNumber;
-    string storedEmail, name;
-    Reservation res;
-    while (inFile >> id) {
-        inFile.ignore(); // Ignore newline after ID
-        getline(inFile, storedEmail); // Read email
-        getline(inFile, name);        // Read passenger name
-        inFile >> age;
-        inFile.ignore(); // Ignore newline after age
-        inFile >> seatNumber;
-        inFile.ignore(); // Ignore newline after seat number
+    try {
+        ifstream inFile(filename);
+        if (!inFile) {
+            throw runtime_error("Error: File not found.");
+        }
 
-        Reservation res{ id, storedEmail, name, age, seatNumber };
-        reservations[id] = res;
+        int id, age, seatNumber;
+        string storedEmail, name;
 
-    }
+        // Load reservations from file
+        while (inFile >> id) {
+            inFile.ignore(); // Ignore newline after ID
+            getline(inFile, storedEmail); // Read email
+            getline(inFile, name);        // Read passenger name
+            inFile >> age;
+            inFile.ignore(); // Ignore newline after age
+            inFile >> seatNumber;
+            inFile.ignore(); // Ignore newline after seat number
 
-    inFile.close();
-    
-    cout << "Enter reservation ID to update: ";
-    cin >> id;
-    
-    //it means iterator
-    auto it = reservations.find(id);
-    if (it != reservations.end())
-    {
-        //it-second(store elemnt in pair first and second)
+            Reservation res{ id, storedEmail, name, age, seatNumber };
+            reservations[id] = res;
+        }
+        inFile.close();
+
+        cout << "Enter reservation ID to update: ";
+        if (!(cin >> id)) {
+            throw invalid_argument("Invalid input for reservation ID.");
+        }
+
+        // Find the reservation
+        auto it = reservations.find(id);
+        if (it == reservations.end()) {
+            throw runtime_error("Reservation not found.");
+        }
+
         Reservation& res = it->second;
+
         // Ask user for updated details
+        cin.ignore(); // Clear input buffer
         cout << "Current passenger name: " << res.passengerName << "\n";
         cout << "Enter new passenger name: ";
-        cin.ignore(); // Clear input buffer
         string newName;
         getline(cin, newName);
         if (!newName.empty()) {
             res.passengerName = newName;
         }
+
         cout << "Current age: " << res.age << "\n";
         cout << "Enter new age: ";
         int newAge;
-        cin >> newAge;
-        if (newAge != 0) {
-            res.age = newAge;
+        if (!(cin >> newAge) || newAge <= 0) {
+            throw invalid_argument("Invalid input for age. Must be a positive number.");
         }
+        res.age = newAge;
+
         cout << "Current seat number: " << res.seatNumber << "\n";
         cout << "Enter new seat number: ";
         int newSeatNumber;
-        cin >> newSeatNumber;
-        if (newSeatNumber != 0) {
-            res.seatNumber = newSeatNumber;
+        if (!(cin >> newSeatNumber) || newSeatNumber <= 0) {
+            throw invalid_argument("Invalid input for seat number. Must be a positive number.");
         }
+        res.seatNumber = newSeatNumber;
+
         // Save all reservations to file
         saveReservationsToFile();
         cout << "Reservation updated successfully!\n";
+
     }
-    else {
-        cout << "Reservation not found.\n";
+    catch (const invalid_argument& ex) {
+        cout << "Input Error: " << ex.what() << "\n";
+        cin.clear();  // Clear the input state
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore invalid input
     }
+    catch (const runtime_error& ex) {
+        cout << "Runtime Error: " << ex.what() << "\n";
+    }
+    catch (const exception& ex) {
+        cout << "An unexpected error occurred: " << ex.what() << "\n";
+    }
+  
 }
 
 // Cancel reservation (admin function)
@@ -261,11 +274,11 @@ void cancelReservation(const string& filename = "reservations.txt") {
 
     inFile.close();
 
-    // Step 2: Prompt user for the reservation ID to cancel
+    //  Prompt user for the reservation ID to cancel
     cout << "Enter reservation ID to cancel: ";
     cin >> id;
 
-    // Step 3: Check if the reservation exists and remove it
+    //  Check if the reservation exists 
     auto it = reservations.find(id);
     if (it != reservations.end()) {
         reservations.erase(it); // Remove from the map

@@ -10,18 +10,23 @@ using namespace std;
 const string ADMIN_EMAIL = "anees78@gmail.com";
 const string ADMIN_PASSWORD = "anees123";
 const string CUSTOMER_FILE = "customers.txt";
-
+ void CustomerFile() {
+    int mobileNumber;
+    string address;
+    ofstream CustomerFile(CUSTOMER_FILE, ios::app);
+    if (CustomerFile){
+        CustomerFile << " mobileNumber = 03163374437 \n";
+        CustomerFile<< " address = Street 12 \n";
+        }
+    }
 // Login function for the user
 bool login(string& rol, string& email) {
     string password;
-
     while (true) {
         cout << "Login to the system\n";
-
-        // Prompt user for email and password
+ // Prompt user for email and password
         cout << "Enter email: ";
         cin >> email;
-
         cout << "Enter password: ";
         cin >> password;
 
@@ -39,16 +44,16 @@ bool login(string& rol, string& email) {
                 cout << "Error: Could not open customer file.\n";
                 return false;
             }
-
+            
             string storedEmail;
-            bool bin = false;  //If a match is bin( the input email matches one from the file), bin is set to true.
+            bool bin = false; //If a match is bin( the input email matches one from the file), bin is set to true.
            
             // Read customer emails from the file
             while (file >> storedEmail) {
                 // Check if the entered email matches a customer email and the password is correct
                 if (email == storedEmail && password == "password123") {  // Default password for customers
                     rol = "customer";
-                    bin = true;
+                    bin = true; //indicates the role "customer" was found.bin is lag variable control loop.
                     break;
                 }
             }
