@@ -13,7 +13,7 @@ struct Reservation {
     string passengerName;
     int age;
     int seatNumber;
-    //Suitable for small to medium projects.
+    // the program simply call display() on any Reservation object.
     void display()const {
 
         cout << "Reservation ID: " << reservationID
@@ -22,17 +22,15 @@ struct Reservation {
             << ", Age: " << age
             << ", Seat Number: " << seatNumber << endl;
     }
-    
+
 };
 
 //This is a map the key type is int, and the value type is Reservation
 map<int, Reservation> reservations;
 //This represents a mapping between two strings : 
 map<string, string> customer; //This is the name of the map, which will store pairs of key-value strings.
-//int nextReservationID = 1;
+
 // Save reservations to a file
-
-
 void saveReservationsToFile(const string& filename = "reservations.txt") {
     //ofstream Creates and writes to files 
     ofstream outFile(filename); // outFile is used to write data to a file.
@@ -79,7 +77,7 @@ void bookReservation(const string& filename = "reservations.txt") {
 
     }
 
-   Reservation res;
+    Reservation res;
     res.reservationID = nextReservationID++;
     int age = 0;
 
@@ -231,23 +229,23 @@ void updateReservation(const string& filename = "reservations.txt") {
         cout << "Reservation updated successfully!\n";
 
     }
-    catch (const invalid_argument& ex) {
-        cout << "Input Error: " << ex.what() << "\n";
+    catch (const invalid_argument& a) {
+        cout << "Input Error: " << a.what() << "\n";
         cin.clear();  // Clear the input state
         cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore invalid input
     }
-    catch (const runtime_error& ex) {
-        cout << "Runtime Error: " << ex.what() << "\n";
+    catch (const runtime_error& a) {
+        cout << "Runtime Error: " << a.what() << "\n";
     }
-    catch (const exception& ex) {
-        cout << "An unexpected error occurred: " << ex.what() << "\n";
+    catch (const exception& a) {
+        cout << "An unexpected error occurred: " << a.what() << "\n";
     }
-  
+
 }
 
 // Cancel reservation (admin function)
 void cancelReservation(const string& filename = "reservations.txt") {
-    // Step 1: Load reservations from the file into the map
+    //Load reservations from the file into the map
     ifstream inFile(filename);
     if (!inFile) {
         cout << "Error: File not found.\n";
@@ -284,7 +282,7 @@ void cancelReservation(const string& filename = "reservations.txt") {
         reservations.erase(it); // Remove from the map
         cout << "Reservation cancelled successfully.\n";
 
-        // Step 4: Save updated reservations back to the file
+        //  Save updated reservations back to the file
         ofstream outFile(filename);
         if (!outFile) {
             cout << "Error: Unable to write to file.\n";
@@ -306,19 +304,17 @@ void cancelReservation(const string& filename = "reservations.txt") {
         cout << "Reservation not found.\n";
     }
 }
-
-
 // Search reservation (customer/admin function)
 void searchReservation(const string& email) {
     const string filename = "reservations.txt";
     ifstream inFile(filename);
-     if (!inFile) {
+    if (!inFile) {
         cout << "Error: File not found.\n";
-        }
+    }
     int id, age, seatNumber;
     string storedEmail, name;
     Reservation res;
-    while(inFile >> id) {
+    while (inFile >> id) {
         inFile.ignore(); // Ignore newline after ID
         getline(inFile, storedEmail); // Read email
         getline(inFile, name);        // Read passenger name
@@ -326,7 +322,7 @@ void searchReservation(const string& email) {
         inFile.ignore(); // Ignore newline after age
         inFile >> seatNumber;
         inFile.ignore(); // Ignore newline after seat number
-        
+
         Reservation res{ id, storedEmail, name, age, seatNumber };
         reservations[id] = res;
 
@@ -363,9 +359,9 @@ void displayAllReservations(const string& filename = "reservations.txt") {
     if (!inFile) {
         cout << "File not found: " << filename << "\n";
     }
-   int id, age, seatNumber;
+    int id, age, seatNumber;
     string email, name;
-    
+
     while (inFile >> id) {
         inFile.ignore(); // Ignore the value 
         getline(inFile, email); //infile read data(getline function use to read full line)
@@ -377,7 +373,7 @@ void displayAllReservations(const string& filename = "reservations.txt") {
 
         Reservation res{ id, email, name, age, seatNumber };
         reservations[id] = res;
-      }
+    }
 
     for (const auto& pair : reservations) {
         pair.second.display();

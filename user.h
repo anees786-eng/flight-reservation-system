@@ -16,7 +16,7 @@ const string CUSTOMER_FILE = "customers.txt";
     ofstream CustomerFile(CUSTOMER_FILE, ios::app);
     if (CustomerFile){
         CustomerFile << " mobileNumber = 03163374437 \n";
-        CustomerFile<< " address = Street 12 \n";
+        CustomerFile<< " address = lahore Street 12 \n";
         }
     }
 // Login function for the user
@@ -53,7 +53,8 @@ bool login(string& rol, string& email) {
                 // Check if the entered email matches a customer email and the password is correct
                 if (email == storedEmail && password == "password123") {  // Default password for customers
                     rol = "customer";
-                    bin = true; //indicates the role "customer" was found.bin is lag variable control loop.
+                    bin = true; //indicates the rol customer was found.bin is flag variable control loop.
+                    
                     break;
                 }
             }
